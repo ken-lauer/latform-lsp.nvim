@@ -14,6 +14,8 @@ Features provided by the server:
   format settings
 - **Rename** a name and all its references (project-wide)
 - **Formatting** — whole document or a selected range
+- **Semantic highlighting** — parser-accurate token colors (names, element
+  types, attributes, builtins) beyond regex syntax highlighting
 - **Document symbols** (outline / breadcrumbs)
 - **Diagnostics** (parse errors + linter warnings), live as you type
 
