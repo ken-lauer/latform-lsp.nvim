@@ -91,12 +91,70 @@ local function enable_legacy(config)
   })
 end
 
+--- Show text in a throwaway scratch split.
+local function show_scratch(text)
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(text, "\n"))
+  vim.bo[buf].modifiable = false
+  vim.bo[buf].bufhidden = "wipe"
+  vim.cmd("botright split")
+  vim.api.nvim_win_set_buf(0, buf)
+end
+
+--- Wire buffer-local latform features when the client attaches: cursor-hold
+--- document highlighting and the `:LatformFileDependencies` command.
+---
+--- @param client vim.lsp.Client
+--- @param bufnr integer
+local function on_attach_features(client, bufnr)
+  local caps = client.server_capabilities or {}
+
+  if caps.documentHighlightProvider then
+    local group = vim.api.nvim_create_augroup("LatformDocHighlight" .. bufnr, { clear = true })
+    vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+      group = group,
+      buffer = bufnr,
+      callback = vim.lsp.buf.document_highlight,
+    })
+    vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+      group = group,
+      buffer = bufnr,
+      callback = vim.lsp.buf.clear_references,
+    })
+  end
+
+  vim.api.nvim_buf_create_user_command(bufnr, "LatformFileDependencies", function()
+    vim.lsp.buf_request(
+      bufnr,
+      "workspace/executeCommand",
+      { command = "latform.fileDependencies", arguments = { vim.uri_from_bufnr(bufnr) } },
+      function(err, result)
+        if err or not result then
+          vim.notify("latform: no file dependencies (did the document parse?)", vim.log.levels.INFO)
+          return
+        end
+        show_scratch(result.tree)
+      end
+    )
+  end, { desc = "Show the latform file-dependency (call include) tree" })
+end
+
 --- Configure and enable the latform language server.
 ---
 --- @param opts table|nil Overrides merged over |latform-lsp.defaults|.
 function M.setup(opts)
   M.config = vim.tbl_deep_extend("force", vim.deepcopy(M.defaults), opts or {})
   M.register_filetypes()
+
+  vim.api.nvim_create_autocmd("LspAttach", {
+    group = vim.api.nvim_create_augroup("LatformLspAttach", { clear = true }),
+    callback = function(args)
+      local client = vim.lsp.get_client_by_id(args.data.client_id)
+      if client and client.name == "latform" then
+        on_attach_features(client, args.buf)
+      end
+    end,
+  })
 
   if vim.fn.has("nvim-0.11") == 1 and vim.lsp.config then
     vim.lsp.config("latform", {
