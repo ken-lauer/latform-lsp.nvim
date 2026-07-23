@@ -21,6 +21,10 @@ Features provided by the server:
 - **Document symbols** (outline / breadcrumbs)
 - **File-dependency tree** — the `call` include graph, via
   `:LatformFileDependencies`
+- **Code actions / quick fixes** — remove duplicate attribute / unused
+  constant / override, "use built-in constant", "did you mean…" for unknown
+  names/types/attributes, inline/extract constant, expand abbreviation, and
+  suppress a lint
 - **Diagnostics** (parse errors + linter warnings), live as you type
 
 The server is **project-aware**: with a `latform.toml` declaring `top-level`
@@ -78,6 +82,7 @@ attaches:
 | Mapping | Action |
 | --- | --- |
 | `grn` | Rename symbol |
+| `gra` | Code actions / quick fixes |
 | `grr` | Find references |
 | `gO` | Document symbols |
 | `K` | Hover |
