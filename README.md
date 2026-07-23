@@ -17,7 +17,10 @@ Features provided by the server:
 - **Formatting** — whole document or a selected range
 - **Semantic highlighting** — parser-accurate token colors (names, element
   types, attributes, builtins) beyond regex syntax highlighting
+- **Document highlight** — occurrences of the name under the cursor
 - **Document symbols** (outline / breadcrumbs)
+- **File-dependency tree** — the `call` include graph, via
+  `:LatformFileDependencies`
 - **Diagnostics** (parse errors + linter warnings), live as you type
 
 The server is **project-aware**: with a `latform.toml` declaring `top-level`
@@ -84,6 +87,10 @@ attaches:
 Go-to-definition isn't mapped by default — add your own, e.g.
 `vim.keymap.set("n", "gd", vim.lsp.buf.definition)`. Format the whole buffer
 with `:lua vim.lsp.buf.format()`.
+
+When the server attaches, occurrences of the name under the cursor are
+highlighted on `CursorHold`, and a buffer-local `:LatformFileDependencies`
+command opens the project's `call` include tree in a scratch split.
 
 **Completion** is provided by the server but Neovim needs a completion engine to
 surface it. On 0.11+ you can enable the built-in one per buffer:
