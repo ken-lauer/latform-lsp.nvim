@@ -7,6 +7,7 @@ Features provided by the server:
 
 - **Go-to-definition** for elements, lines, lists, and constants
 - **Find references** across the whole project
+- **Workspace symbols** — jump to any element/line/constant across the project
 - **Hover** — element/constant/line definitions, attribute types & units,
   element-type keywords, and builtin functions & constants
 - **Completion** — element types, attributes (for the element's type),
